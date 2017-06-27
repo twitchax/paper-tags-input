@@ -215,24 +215,24 @@ If you want to save it in bower.json file, remember to add flag --save
     _addTag: function (tag) {
       var input = this.$$('#autoCompleteInput');
 
-      // Check whether tag is a shortcut if it is then execute it before adding tag.
-      var args = tag.split(" ");
-      var callback = this.shortcuts[args[0]];
-      args.splice(0, 1);
-      if(callback) {
-        var result = callback(args);
-        result = result.filter((obj) => {
-          return this.tags.indexOf(obj) < 0;
-        });
-        this.push('tags', ...result);
-      }
-
       if (this.enableAdd) {
         if (typeof (this.tags) == 'undefined') {
           this.tags = [];
         }
         if (tag != '' && this.tags.indexOf(tag) < 0) {
-          this.push('tags', tag);
+          // Check whether tag is a shortcut if it is then execute it before adding tag.
+          var args = tag.split(" ");
+          var callback = this.shortcuts[args[0]];
+          args.splice(0, 1);
+          if(callback) {
+            var result = callback(args);
+              result = result.filter((obj) => {
+              return this.tags.indexOf(obj) < 0;
+            });
+            this.push('tags', ...result);
+          } else {
+            this.push('tags', tag);
+          }
         }
       }
 
@@ -247,7 +247,9 @@ If you want to save it in bower.json file, remember to add flag --save
      */
     installShortcut: function (command, callback) {
       // Check whether command-callback pair pre exist if not then add.
-      this.shortcuts[command] = !this.shortcuts[command] && callback;
+      if (!this.shortcuts[command]) {
+        this.shortcuts[command] = callback;
+      }
     },
 
     /**
